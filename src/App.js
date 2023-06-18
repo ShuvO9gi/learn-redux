@@ -1,9 +1,11 @@
-import Counting from "./components/redux(davegray)/Counter/Counting";
+import AddPostForm from "./components/redux(davegray)/features/posts/AddPostForm";
+import PostsList from "./components/redux(davegray)/features/posts/PostsList";
 
 function App() {
   return (
     <main className="App">
-      <Counting />
+      <AddPostForm />
+      <PostsList />
     </main>
   );
 }

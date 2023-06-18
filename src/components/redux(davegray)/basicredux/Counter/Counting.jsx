@@ -5,7 +5,7 @@ import {
   increment,
   incrementByAmount,
   reset,
-} from "../features/counter";
+} from "../../../features/counter";
 
 const Counting = () => {
   const counts = useSelector((state) => state.counter.count);
