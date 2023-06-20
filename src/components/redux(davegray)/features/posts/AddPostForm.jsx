@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllUsers } from "../user/userSlice";
-import { postAdded } from "./postsSlice";
+import { addNewPost } from "./postsSlice";
 
 const AddPostForm = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
+  const [addNewRequest, setAddNewRequest] = useState("idle");
   const dispatch = useDispatch();
   const user = useSelector(selectAllUsers);
 
@@ -14,19 +15,25 @@ const AddPostForm = () => {
   const onContentChange = (e) => setContent(e.target.value);
   const onAuthorChange = (e) => setUserId(e.target.value);
 
-  const onSavePost = () => {
-    if (title && content) {
-      dispatch(
-        postAdded(/* {id: nanoid(),title, content} */ title, content, userId)
-      );
+  const canSave =
+    [title, content, userId].every(Boolean) && addNewRequest === "idle";
 
-      setTitle("");
-      setContent("");
-      setUserId("");
+  const onSavePost = () => {
+    if (canSave) {
+      try {
+        setAddNewRequest("pending");
+        dispatch(addNewPost({ title, body: content, userId })).unwrap(); //promise returned by the dispatched thunk has an unwrap
+        // property which can be called to extract the payload of a fulfilled action or to throw either the error
+        setTitle("");
+        setContent("");
+        setUserId("");
+      } catch (err) {
+        console.log("Failed to save the post", err);
+      } finally {
+        setAddNewRequest("idle");
+      }
     }
   };
-
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
 
   const userOptions = user.map((user) => (
     <option key={user.id} value={user.id}>

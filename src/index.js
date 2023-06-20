@@ -3,16 +3,19 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import App from "./App";
 import store from "./components/redux(davegray)/app/store";
+import { fetchUsers } from "./components/redux(davegray)/features/user/userSlice";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
+store.dispatch(fetchUsers()); //this is used here because we want to show the users when the page load first
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>
+  //<React.StrictMode>
+  <Provider store={store}>
+    <App />
+  </Provider>
+  //</React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
