@@ -18,10 +18,39 @@ export const fetchPost = createAsyncThunk("posts/fetchPost", async () => {
 export const addNewPost = createAsyncThunk(
   "posts/addNewPost",
   async (initialPost) => {
-    //console.log(initialPost);
+    //console.log(initialPost); //initial post is the post which you added
     const response = await axios.post(POSTS_URL, initialPost);
     //console.log(response);
     return response.data;
+  }
+);
+
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async (initialPost) => {
+    console.log(initialPost);
+    const { id } = initialPost;
+    try {
+      const response = await axios.put(`${POSTS_URL}/${id}`, initialPost);
+      return response.data;
+    } catch (err) {
+      return err.message;
+      //return initialPost; //only for testing redux!
+    }
+  }
+);
+
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (initialPost) => {
+    const { id } = initialPost;
+    try {
+      const response = await axios.delete(`${POSTS_URL}/${id}`);
+      if (response?.status === 200) return initialPost;
+      return `${response?.status}:${response?.statusText}`;
+    } catch (err) {
+      return err.message;
+    }
   }
 );
 
@@ -29,9 +58,6 @@ const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    /* postAdded(state, action) {
-      state.push(action.payload); //add data to the state immutably(like immerjs)
-    }, */
     postAdded: {
       reducer(state, action) {
         state.posts.push(action.payload);
@@ -113,13 +139,39 @@ const postsSlice = createSlice({
         };
         //console.log(action.payload);
         state.posts.push(action.payload);
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("Update could can not complete!");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        action.payload.date = new Date().toISOString();
+        const posts = state.posts.filter((post) => post.id !== id); //filtering all the post that are not equal to the updated id
+        state.posts = [...posts, action.payload]; //spreading all the post & updated post
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("Failed to delete the post!");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        const post = state.posts.filter((post) => post.id !== id);
+        state.posts = post;
       });
   },
 });
 
-export const selectAllPost = (state) => state.posts.posts;
+export const selectAllPost = (state) => {
+  console.log(state);
+  return state.posts.posts;
+};
 export const getAllStatus = (state) => state.posts.status;
 export const getAllError = (state) => state.posts.error;
+export const selectPostById = (state, postId) =>
+  state.posts.posts.find((post) => post.id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 

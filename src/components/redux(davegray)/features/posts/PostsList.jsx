@@ -1,24 +1,18 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import PostEcerpt from "./PostEcerpt";
-import {
-  fetchPost,
-  getAllError,
-  getAllStatus,
-  selectAllPost,
-} from "./postsSlice";
+import { getAllError, getAllStatus, selectAllPost } from "./postsSlice";
 
 const PostsList = () => {
-  const dispatch = useDispatch();
   const posts = useSelector(selectAllPost);
   const postStatus = useSelector(getAllStatus);
   const error = useSelector(getAllError);
 
-  useEffect(() => {
+  //since fetch post is used in index.js file that makes the posts visible for all the pages when page loads
+  /* useEffect(() => {
     if (postStatus === "idle") {
       dispatch(fetchPost());
     }
-  }, [postStatus, dispatch]);
+  }, [postStatus, dispatch]); */
 
   let content;
   if (postStatus === "loading") {
@@ -34,12 +28,7 @@ const PostsList = () => {
     content = <p>{error}</p>;
   }
 
-  return (
-    <section>
-      <h2>PostsList</h2>
-      {content}
-    </section>
-  );
+  return <section>{content}</section>;
 };
 
 export default PostsList;
