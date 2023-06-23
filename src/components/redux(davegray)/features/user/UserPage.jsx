@@ -1,15 +1,22 @@
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { selectAllPost } from "../posts/postsSlice";
+import { /* selectAllPost, */ selectPostByUser } from "../posts/postsSlice";
 import { selectUserById } from "./userSlice";
 
 const UserPage = () => {
   const { userId } = useParams();
   const user = useSelector((state) => selectUserById(state, Number(userId)));
-  const postByUser = useSelector((state) => {
+
+  //this will make an unnecessary rendering
+  /* const postByUser = useSelector((state) => {
     const allPost = selectAllPost(state);
     return allPost.filter((post) => post.userId === Number(userId));
-  });
+  }); */
+
+  //unnecessary rendering is prevented by this way
+  const postByUser = useSelector((state) =>
+    selectPostByUser(state, Number(userId))
+  );
 
   const postTitles = postByUser.map((post) => (
     <li key={post.id}>

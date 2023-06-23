@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 import axios from "axios";
 import { sub } from "date-fns";
 
@@ -28,7 +32,7 @@ export const addNewPost = createAsyncThunk(
 export const updatePost = createAsyncThunk(
   "posts/updatePost",
   async (initialPost) => {
-    console.log(initialPost);
+    //console.log(initialPost); //initial post is the post that you updated
     const { id } = initialPost;
     try {
       const response = await axios.put(`${POSTS_URL}/${id}`, initialPost);
@@ -58,29 +62,6 @@ const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    postAdded: {
-      reducer(state, action) {
-        state.posts.push(action.payload);
-      },
-      prepare(title, content, userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-            content,
-            date: new Date().toISOString(),
-            userId,
-            reactions: {
-              thumbsUp: 0,
-              wow: 0,
-              heart: 0,
-              rocket: 0,
-              coffee: 0,
-            },
-          },
-        };
-      },
-    },
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload;
       const existingPost = state.posts.find((post) => post.id === postId);
@@ -147,9 +128,12 @@ const postsSlice = createSlice({
           return;
         }
         const { id } = action.payload;
+        //console.log(action.payload);  //full updated post with date property
         action.payload.date = new Date().toISOString();
         const posts = state.posts.filter((post) => post.id !== id); //filtering all the post that are not equal to the updated id
+        //console.log(posts); //displaying all the post only without updated post
         state.posts = [...posts, action.payload]; //spreading all the post & updated post
+        //console.log(state.posts); //display all the post as an object with updated post
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         if (!action.payload?.id) {
@@ -165,13 +149,24 @@ const postsSlice = createSlice({
 });
 
 export const selectAllPost = (state) => {
-  console.log(state);
+  //console.log(state); //outside of the creatSlice, it will show all the states(posts & users) as an object
+  // but inside of createSlice it will show only the posts state
+  //console.log(state.users); //here you can access the user state.
+  //console.log(state.posts);// accessing the posts state & state.posts.posts will be used to access the posts property of the posts state
   return state.posts.posts;
 };
 export const getAllStatus = (state) => state.posts.status;
 export const getAllError = (state) => state.posts.error;
 export const selectPostById = (state, postId) =>
   state.posts.posts.find((post) => post.id === postId);
+
+//createSelector memorize the object to prevent unnecessary re-rendering
+//its takes one or more input functions here [are dependencies(values returned from this function)]
+//if only input <posts or userId> changes then the function re-render otherwise not(i.e. memorized)
+export const selectPostByUser = createSelector(
+  [selectAllPost, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.userId === userId)
+);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 

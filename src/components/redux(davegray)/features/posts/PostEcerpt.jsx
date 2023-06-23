@@ -1,9 +1,10 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import PostAuthor from "./PostAuthor";
 import ReactionButtons from "./ReactionButtons";
 import TimeAgo from "./TimeAgo";
 
-const PostEcerpt = ({ post }) => {
+let PostEcerpt = ({ post }) => {
   return (
     <article>
       <h2>{post.title}</h2>
@@ -17,5 +18,8 @@ const PostEcerpt = ({ post }) => {
     </article>
   );
 };
+
+PostEcerpt = React.memo(PostEcerpt); //prevent re-rendering from reaction button changes, only re-render when
+//the value of the post changes
 
 export default PostEcerpt;
